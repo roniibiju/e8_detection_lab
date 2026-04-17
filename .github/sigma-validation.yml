@@ -1,0 +1,8 @@
+# Sigma validation config — used by CI and local checks.
+# Excludes project-specific tag validators that are intentionally
+# non-standard (e8.control.*, e8.maturity.*).
+# These tags are stripped before SigmaHQ upstream submissions.
+validators:
+  exclude:
+    - namespace_tag
+    - attacktag
