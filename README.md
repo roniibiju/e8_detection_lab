@@ -1,5 +1,9 @@
 # Essential Eight Detection Lab
 
+[![Sigma Validation](https://github.com/roniibiju/e8_detection_lab/actions/workflows/sigma-validate.yml/badge.svg)](https://github.com/roniibiju/e8_detection_lab/actions/workflows/sigma-validate.yml)
+[![Rules](https://img.shields.io/badge/rules-12-blue)](rules/)
+[![License: DRL](https://img.shields.io/badge/license-DRL%201.1-green)](LICENSE)
+
 Sigma detection rules and adversary emulation scripts mapped to the [ASD Essential Eight](https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight) mitigation strategies.
 
 > **Status:** Active development. Rules are being submitted upstream to [SigmaHQ](https://github.com/SigmaHQ/sigma).
