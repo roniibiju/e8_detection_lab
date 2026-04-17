@@ -10,8 +10,8 @@ references:
     - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
     - https://attack.mitre.org/techniques/T1036/005/
 author: Roni Biju
-date: 2026-04-17
-modified: 2026-04-17
+date: 2026-03-14
+modified: 2026-03-14
 tags:
     - e8.control.01
     - e8.maturity.ml1

@@ -12,8 +12,8 @@ references:
     - https://attack.mitre.org/techniques/T1218/
     - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
 author: Roni Biju
-date: 2026-04-17
-modified: 2026-04-17
+date: 2026-04-08
+modified: 2026-04-08
 tags:
     - e8.control.01
     - e8.maturity.ml2

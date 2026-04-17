@@ -11,8 +11,8 @@ references:
     - https://attack.mitre.org/techniques/T1059/005/
     - https://attack.mitre.org/techniques/T1059/007/
 author: Roni Biju
-date: 2026-04-17
-modified: 2026-04-17
+date: 2026-03-18
+modified: 2026-03-18
 tags:
     - e8.control.04
     - e8.maturity.ml1

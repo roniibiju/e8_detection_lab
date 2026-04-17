@@ -128,11 +128,9 @@ def health():
 
 @app.errorhandler(Exception)
 def handle_error(e):
-    import traceback
-    return f"""
-    <h1>Error</h1>
-    <pre>{traceback.format_exc()}</pre>
-    """, 500
+    import logging
+    logging.exception("Unhandled exception")
+    return "<h1>Something went wrong.</h1>", 500
 
 
 @app.route("/")
@@ -219,12 +217,22 @@ def mapping():
 
 @app.route("/about/")
 def about():
-    return render_template("about.html")
+    rules = load_rules()
+    emulation_scripts = list((BASE_DIR / "emulation").rglob("*.ps1"))
+    return render_template(
+        "about.html",
+        total_rules=len(rules),
+        controls_covered=sum(1 for c in CONTROL_NAMES if any(r["_control"] == c for r in rules)),
+        emulation_count=len(emulation_scripts),
+    )
 
 
 @app.route("/emulation/<path:script_path>")
 def emulation_view(script_path):
-    full_path = BASE_DIR / "emulation" / script_path
+    emulation_root = (BASE_DIR / "emulation").resolve()
+    full_path = (emulation_root / script_path).resolve()
+    if not full_path.is_relative_to(emulation_root):
+        abort(403)
     if not full_path.exists() or full_path.suffix != ".ps1":
         abort(404)
     content = full_path.read_text(encoding="utf-8")
@@ -236,4 +244,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8080)))
     args = parser.parse_args()
-    app.run(debug=True, port=args.port)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug, port=args.port)

@@ -132,9 +132,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Rule submissions that get merged into Si
 
 ## Upstream SigmaHQ PRs
 
-| Rule | PR | Status |
-|------|----|--------|
-| *(first submission pending)* | — | — |
+Preparing `e8_08_shadow_copy_deletion` and `e8_03_office_spawns_shell_process` for first upstream submission.
+Rules will be stripped of project-specific `e8.*` tags before PR — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
