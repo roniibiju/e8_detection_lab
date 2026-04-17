@@ -1,0 +1,57 @@
+title: PowerShell Encoded Command Execution (E8-04 User App Hardening)
+id: e89c6ebd-113e-4f42-8484-1c22077be615
+status: experimental
+description: |
+    Detects PowerShell launched with -EncodedCommand (-enc/-ec) to execute a
+    Base64-encoded payload. This technique is used to obfuscate malicious scripts
+    and evade command-line logging. E8-04 requires PowerShell to be constrained
+    and logged; this rule detects attempts to abuse it even where script block
+    logging is partially in place.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+    - https://attack.mitre.org/techniques/T1027/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.04
+    - e8.maturity.ml1
+    - attack.execution
+    - attack.t1059.001
+    - attack.defense_evasion
+    - attack.t1027
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains|all:
+            - '-'
+            - 'enc'   # matches -enc, -EncodedCommand, -EnC, -ENCODEDCOMMAND
+    selection_encoded_flag:
+        CommandLine|re: '(?i)[-\/](e(nc(odedcommand)?)?|ec)\s+'
+    filter_known_good:
+        # Some endpoint agents use encoded commands legitimately
+        ParentImage|endswith:
+            - '\CylanceSvc.exe'
+            - '\MsMpEng.exe'
+    condition: (selection or selection_encoded_flag) and not filter_known_good
+falsepositives:
+    - Management tools that encode PowerShell commands for safe transmission
+    - Some EDR/AV products passing policies as encoded commands
+    - DSC (Desired State Configuration) runs in automation pipelines
+level: medium
+custom:
+    e8_control: E8-04
+    e8_maturity: ML1
+    e8_bypass_technique: Base64-encoded PowerShell payload to evade logging
+    false_positive_rate: medium
+    tuning_notes: |
+        At ML2+ with PowerShell CLM and Script Block Logging enabled, the
+        encoded payload is still captured in Event 4104. Pair this process
+        creation alert with 4104 content analysis for full coverage.
+        Suppress on known automation service accounts.

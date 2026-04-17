@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ script_path }} — E8 Detection Lab{% endblock %}
+
+{% block content %}
+<nav class="mb-4" style="font-size:0.85rem;">
+  <a href="/" class="text-muted text-decoration-none"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+  <span class="text-muted mx-2">/</span>
+  <span>Emulation</span>
+  <span class="text-muted mx-2">/</span>
+  <span>{{ script_path }}</span>
+</nav>
+
+<div class="d-flex align-items-start justify-content-between gap-3 mb-4 flex-wrap">
+  <div>
+    <h1 style="font-size:1.3rem; font-weight:700;">{{ script_path.split('/')[-1] }}</h1>
+    <div class="d-flex gap-2 mt-2">
+      <span class="tag-badge"><i class="bi bi-play-circle me-1"></i>PowerShell emulation</span>
+      <span class="tag-badge" style="color:var(--low); border-color:rgba(63,185,80,0.3);">
+        <i class="bi bi-shield-check me-1"></i>No real payload
+      </span>
+    </div>
+  </div>
+  <button class="btn btn-sm btn-outline-secondary" id="copy-btn" onclick="copyScript()">
+    <i class="bi bi-clipboard me-1"></i>Copy
+  </button>
+</div>
+
+<div class="detail-meta-card mb-4 small text-muted">
+  <i class="bi bi-exclamation-triangle me-2" style="color:var(--high);"></i>
+  Run in a <strong>Windows lab VM only</strong>. These scripts generate process creation and file events
+  to trigger detections — they do not download or execute real payloads.
+</div>
+
+<div class="yaml-block">
+  <pre><code class="language-powershell" id="script-source">{{ content }}</code></pre>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyScript() {
+  const text = document.getElementById('script-source').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Copied';
+    setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

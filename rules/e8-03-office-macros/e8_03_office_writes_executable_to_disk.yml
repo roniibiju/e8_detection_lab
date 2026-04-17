@@ -1,0 +1,61 @@
+title: Microsoft Office Writes Executable or Script to Disk (E8-03)
+id: 19acc3f0-1ff0-4740-99c2-313c3893b123
+status: experimental
+description: |
+    Detects a Microsoft Office process creating an executable, script, or batch file
+    outside of its expected working directories. Macro-based droppers write a second-stage
+    payload to disk before executing it. This rule catches the write event, complementing
+    the process-spawn rule which catches the execution.
+references:
+    - https://attack.mitre.org/techniques/T1566/001/
+    - https://attack.mitre.org/techniques/T1105/
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.03
+    - e8.maturity.ml1
+    - attack.execution
+    - attack.t1566.001
+    - attack.t1105
+logsource:
+    category: file_event
+    product: windows
+detection:
+    selection_process:
+        Image|endswith:
+            - '\WINWORD.EXE'
+            - '\EXCEL.EXE'
+            - '\POWERPNT.EXE'
+            - '\OUTLOOK.EXE'
+            - '\MSACCESS.EXE'
+    selection_file_type:
+        TargetFilename|endswith:
+            - '.exe'
+            - '.dll'
+            - '.bat'
+            - '.cmd'
+            - '.ps1'
+            - '.vbs'
+            - '.js'
+            - '.hta'
+            - '.scr'
+            - '.com'
+    filter_office_dirs:
+        # Office legitimately writes to its own temp locations
+        TargetFilename|contains:
+            - '\AppData\Local\Microsoft\Office'
+            - '\AppData\Roaming\Microsoft\Office'
+            - '\AppData\Local\Temp\Diagnostics'
+    condition: selection_process and selection_file_type and not filter_office_dirs
+falsepositives:
+    - Legitimate Office add-ins deploying helper binaries on first run
+level: high
+custom:
+    e8_control: E8-03
+    e8_maturity: ML1
+    e8_bypass_technique: Macro dropper writing executable payload to disk
+    false_positive_rate: low
+    tuning_notes: |
+        Requires Sysmon EventID 11 (FileCreate) or equivalent EDR telemetry.
+        Extend the filter list after baselining to suppress add-in installers.

@@ -1,0 +1,50 @@
+title: MFA Fatigue Attack - Repeated Authentication Requests Denied (E8-07)
+id: 9c4959c5-cdf3-4f89-bf8a-112ef5b62ae7
+status: experimental
+description: |
+    Detects a user-denied MFA push notification (ResultType 500121) — each event
+    is a signal that someone with valid credentials is triggering authentication
+    the account owner did not initiate. MFA fatigue (push bombing) attacks rely on
+    the user eventually approving one of many repeated pushes.
+
+    Configure your SIEM to aggregate this rule: alert when the same
+    UserPrincipalName fires more than 3 times within 10 minutes for a
+    high-confidence MFA fatigue indicator. A single event is worth logging;
+    repeated events are worth paging.
+
+    Log source: Azure AD / Entra ID Sign-in logs via Sentinel or equivalent SIEM.
+references:
+    - https://attack.mitre.org/techniques/T1621/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.07
+    - e8.maturity.ml2
+    - attack.credential_access
+    - attack.t1621
+logsource:
+    product: azure
+    service: signinlogs
+detection:
+    selection:
+        ResultType: 500121
+        AuthenticationMethodsUsed|contains: 'MobileAppNotification'
+    condition: selection
+falsepositives:
+    - User genuinely declining multiple legitimate sign-in attempts they did not initiate
+    - Misconfigured SSO causing repeated auth loops
+level: high
+custom:
+    e8_control: E8-07
+    e8_maturity: ML2
+    e8_bypass_technique: MFA fatigue / push bombing attack
+    false_positive_rate: low
+    tuning_notes: |
+        Threshold of 3 denials in 10 minutes catches active campaigns without
+        generating noise from the occasional mis-tap. Tune threshold up in
+        environments where users frequently deny unknown pushes for training
+        purposes. Correlate UserPrincipalName against HR/IT change windows.
+        At ML3 with phishing-resistant MFA (FIDO2/CBA) this attack vector is
+        closed, but push MFA is still prevalent and worth monitoring.

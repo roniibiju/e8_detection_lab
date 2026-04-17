@@ -1,0 +1,68 @@
+title: Microsoft Office Application Spawns Shell or Script Process (E8-03)
+id: c9deb7bd-46ff-4823-8c2d-953e874e1ae3
+status: experimental
+description: |
+    Detects a Microsoft Office application spawning a shell, scripting host, or
+    reconnaissance process. This is a primary indicator of a malicious macro executing
+    a payload — a technique that E8-03 (Macro Settings) is explicitly designed to prevent.
+    Fires regardless of macro signing status; any Office→shell execution warrants review.
+references:
+    - https://attack.mitre.org/techniques/T1566/001/
+    - https://attack.mitre.org/techniques/T1059/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.03
+    - e8.maturity.ml1
+    - attack.execution
+    - attack.t1566.001
+    - attack.t1059
+    - attack.initial_access
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\WINWORD.EXE'
+            - '\EXCEL.EXE'
+            - '\POWERPNT.EXE'
+            - '\OUTLOOK.EXE'
+            - '\MSACCESS.EXE'
+            - '\MSPUB.EXE'
+            - '\ONENOTE.EXE'
+    selection_suspicious_child:
+        Image|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+            - '\certutil.exe'
+            - '\bitsadmin.exe'
+            - '\curl.exe'
+            - '\net.exe'
+            - '\net1.exe'
+            - '\regsvr32.exe'
+            - '\rundll32.exe'
+    filter_known_good:
+        # Some enterprise add-ins legitimately spawn processes
+        CommandLine|contains:
+            - 'splwow64'
+    condition: selection_parent and selection_suspicious_child and not filter_known_good
+falsepositives:
+    - Specific legacy enterprise add-ins that spawn helper processes
+    - Print spooler interactions
+level: high
+custom:
+    e8_control: E8-03
+    e8_maturity: ML1
+    e8_bypass_technique: Malicious VBA macro spawning shell/script process
+    false_positive_rate: low
+    tuning_notes: |
+        In environments with macro signing (ML2+) this should be near-zero FP.
+        At ML1 (macros enabled for all) FP rate is slightly higher due to
+        legacy add-ins. Build a suppression list from initial baselining period.

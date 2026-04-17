@@ -1,0 +1,49 @@
+title: New Local Administrator Account Created (E8-05 Restrict Admin Privileges)
+id: 8a0d5ec1-da31-4493-a775-e11c074fa643
+status: experimental
+description: |
+    Detects a user being added to the local Administrators group (EventID 4732).
+    Adversaries create backdoor admin accounts for persistence after initial compromise.
+    E8-05 requires that local admin accounts be managed, documented, and reviewed —
+    any unexpected addition to Administrators warrants immediate review.
+
+    For higher fidelity, correlate with EventID 4720 (account creation) within 5
+    minutes using your SIEM's correlation engine to detect the full create-then-escalate
+    sequence.
+references:
+    - https://attack.mitre.org/techniques/T1136/001/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.05
+    - e8.maturity.ml1
+    - attack.persistence
+    - attack.t1136.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4732
+        TargetUserName|contains: 'Administrators'
+    filter_known_system:
+        SubjectUserName:
+            - 'SYSTEM'
+            - 'LOCAL SERVICE'
+            - 'NETWORK SERVICE'
+    condition: selection and not filter_known_system
+falsepositives:
+    - Authorised IT provisioning scripts creating break-glass accounts
+    - Software installers that create service accounts
+level: high
+custom:
+    e8_control: E8-05
+    e8_maturity: ML1
+    e8_bypass_technique: Backdoor local admin account for persistence
+    false_positive_rate: low
+    tuning_notes: |
+        Correlate SubjectUserName (who made the change) against your ITSM/change
+        management system. Any creation outside a documented change window is
+        high-confidence. Consider near-realtime alerting for this rule.

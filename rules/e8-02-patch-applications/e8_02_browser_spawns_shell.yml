@@ -1,0 +1,63 @@
+title: Browser Spawns Shell Process - Possible Unpatched App Exploitation (E8-02)
+id: 04d5168f-934f-4dc1-9967-51cfac6110ec
+status: experimental
+description: |
+    Detects a web browser (Chrome, Firefox, Edge) spawning a shell or scripting
+    process — the classic indicator of browser exploit or malicious web content
+    executing arbitrary code. E8-02 (Patch Applications) focuses on keeping
+    browsers patched; this rule detects what happens when patching fails or is
+    delayed beyond the maturity level window.
+references:
+    - https://attack.mitre.org/techniques/T1203/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.02
+    - e8.maturity.ml1
+    - attack.execution
+    - attack.t1203
+    - attack.initial_access
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent_browser:
+        ParentImage|endswith:
+            - '\chrome.exe'
+            - '\firefox.exe'
+            - '\msedge.exe'
+            - '\iexplore.exe'
+            - '\opera.exe'
+            - '\brave.exe'
+    selection_child_shell:
+        Image|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+            - '\certutil.exe'
+    filter_known_browser_helper:
+        # Chrome/Edge spawn helper processes that look like children
+        CommandLine|contains:
+            - '--type=renderer'
+            - '--type=gpu-process'
+            - '--type=utility'
+    condition: selection_parent_browser and selection_child_shell and not filter_known_browser_helper
+falsepositives:
+    - Browser-based management consoles that launch local tools
+    - Click-once applications launched via browser
+    - Electron apps with integrated browser
+level: high
+custom:
+    e8_control: E8-02
+    e8_maturity: ML1
+    e8_bypass_technique: Browser exploit or malicious web content spawning shell
+    false_positive_rate: low
+    tuning_notes: |
+        Extremely high-fidelity on modern patched browsers. Filter by specific
+        browser versions if telemetry includes that field. If firing on Electron
+        apps, suppress by ParentCommandLine containing '--app=' flag.

@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}{{ rule.title }} — E8 Detection Lab{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="mb-4" style="font-size:0.85rem;">
+  <a href="/rules" class="text-muted text-decoration-none">
+    <i class="bi bi-list-ul me-1"></i>Rules
+  </a>
+  <span class="text-muted mx-2">/</span>
+  <span class="text-muted">{{ rule._control.upper() }}</span>
+  <span class="text-muted mx-2">/</span>
+  <span>{{ rule.title }}</span>
+</nav>
+
+<!-- Title row -->
+<div class="d-flex align-items-start justify-content-between gap-3 mb-4 flex-wrap">
+  <div>
+    <h1 style="font-size:1.4rem; font-weight:700; line-height:1.3;">{{ rule.title }}</h1>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <span class="ctrl-badge">{{ rule._control.upper() }} — {{ rule._control_name }}</span>
+      <span class="ml-badge badge-{{ rule._maturity.lower() }}">{{ rule._maturity }}</span>
+      <span class="level-badge badge-{{ rule._level }}">{{ rule._level }}</span>
+      {% if rule.status %}
+        <span class="tag-badge">{{ rule.status }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <a href="/rules?control={{ rule._control }}" class="btn btn-sm btn-outline-secondary flex-shrink-0">
+    <i class="bi bi-funnel me-1"></i>More {{ rule._control.upper() }} rules
+  </a>
+</div>
+
+<div class="row g-4">
+
+  <!-- Left column: description + YAML -->
+  <div class="col-12 col-lg-8">
+
+    <!-- Description -->
+    <h6 class="detail-label mb-2">Description</h6>
+    <div class="description-block mb-4">{{ rule.description | trim }}</div>
+
+    <!-- YAML source -->
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h6 class="detail-label mb-0">Rule Source (Sigma YAML)</h6>
+      <button class="btn btn-sm btn-outline-secondary" id="copy-btn" onclick="copyYaml()">
+        <i class="bi bi-clipboard me-1"></i>Copy
+      </button>
+    </div>
+    <div class="yaml-block mb-4">
+      <pre><code class="language-yaml" id="yaml-source">{{ rule._raw }}</code></pre>
+    </div>
+
+    <!-- Tuning notes -->
+    {% set tuning = (rule.custom or {}).get('tuning_notes', '') %}
+    {% if tuning %}
+    <h6 class="detail-label mb-2"><i class="bi bi-sliders me-1"></i>Tuning Notes</h6>
+    <div class="tuning-block mb-4">{{ tuning | trim }}</div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right column: metadata -->
+  <div class="col-12 col-lg-4">
+
+    <!-- Key metadata -->
+    <div class="detail-meta-card mb-3">
+      <div class="row g-3">
+
+        <div class="col-6">
+          <div class="detail-label">E8 Control</div>
+          <div class="detail-value">
+            <a href="/rules?control={{ rule._control }}" class="text-decoration-none">
+              {{ rule._control.upper() }}
+            </a>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="detail-label">Min. Maturity</div>
+          <div class="detail-value">
+            <span class="ml-badge badge-{{ rule._maturity.lower() }}">{{ rule._maturity }}</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="detail-label">Severity</div>
+          <div class="detail-value">
+            <span class="level-badge badge-{{ rule._level }}">{{ rule._level }}</span>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="detail-label">FP Rate</div>
+          {% set fp = (rule.custom or {}).get('false_positive_rate', '') %}
+          <div class="detail-value fp-{{ fp }}">{{ fp or '—' }}</div>
+        </div>
+
+        <div class="col-12">
+          <div class="detail-label">Log Source</div>
+          <div class="detail-value small font-monospace">{{ rule._logsource or '—' }}</div>
+        </div>
+
+        {% if rule.id %}
+        <div class="col-12">
+          <div class="detail-label">Rule ID</div>
+          <div class="detail-value small font-monospace text-muted" style="word-break:break-all;">{{ rule.id }}</div>
+        </div>
+        {% endif %}
+
+        <div class="col-12">
+          <div class="detail-label">File</div>
+          <div class="detail-value small font-monospace text-muted" style="word-break:break-all;">{{ rule._file }}</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bypass technique -->
+    {% set bypass = (rule.custom or {}).get('e8_bypass_technique', '') %}
+    {% if bypass %}
+    <div class="detail-meta-card mb-3">
+      <div class="detail-label"><i class="bi bi-bug me-1"></i>Bypass Technique</div>
+      <div class="mt-1" style="font-size:0.9rem;">{{ bypass }}</div>
+    </div>
+    {% endif %}
+
+    <!-- ATT&CK tags -->
+    {% if rule._attack_tags %}
+    <div class="detail-meta-card mb-3">
+      <div class="detail-label mb-2"><i class="bi bi-diagram-3 me-1"></i>ATT&CK Techniques</div>
+      <div class="d-flex flex-wrap gap-1">
+        {% for tag in rule._attack_tags %}
+          <a href="https://attack.mitre.org/techniques/{{ tag.replace('attack.', '').upper().replace('.', '/') }}"
+             target="_blank"
+             class="tag-badge text-decoration-none">{{ tag }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- False positives -->
+    {% if rule.falsepositives %}
+    <div class="detail-meta-card mb-3">
+      <div class="detail-label mb-2"><i class="bi bi-exclamation-triangle me-1"></i>False Positives</div>
+      <ul class="mb-0 ps-3" style="font-size:0.88rem;">
+        {% for fp in rule.falsepositives %}
+          <li class="text-muted">{{ fp }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Emulation scripts -->
+    {% if rule._emulation_scripts %}
+    <div class="detail-meta-card mb-3">
+      <div class="detail-label mb-2"><i class="bi bi-play-circle me-1"></i>Emulation Scripts</div>
+      {% for script in rule._emulation_scripts %}
+        {% set script_url = script | replace('emulation/', '', 1) %}
+        <a href="/emulation/{{ script_url }}" class="emulation-path d-block text-decoration-none mb-1">
+          <i class="bi bi-file-earmark-code me-1"></i>{{ script }}
+        </a>
+      {% endfor %}
+      <p class="text-muted mt-2 mb-0" style="font-size:0.78rem;">
+        Run in a Windows lab VM only. No real payload is executed.
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- References -->
+    {% if rule.references %}
+    <div class="detail-meta-card mb-3">
+      <div class="detail-label mb-2"><i class="bi bi-link-45deg me-1"></i>References</div>
+      <ul class="mb-0 ps-3" style="font-size:0.85rem;">
+        {% for ref in rule.references %}
+          <li><a href="{{ ref }}" target="_blank" class="text-break" style="color:#79c0ff;">{{ ref }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyYaml() {
+  const text = document.getElementById('yaml-source').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Copied';
+    setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copy'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

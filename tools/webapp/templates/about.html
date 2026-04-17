@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}About — E8 Detection Lab{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+
+    <div class="page-header">
+      <h1><i class="bi bi-person-circle me-2 text-primary"></i>About</h1>
+    </div>
+
+    <!-- Hero card -->
+    <div class="e8-card p-4 mb-4">
+      <div class="d-flex align-items-start gap-4 flex-wrap">
+        <div class="flex-grow-1">
+          <h2 class="fw-bold mb-1" style="font-size:1.4rem;">Roni Biju</h2>
+          <p class="text-muted mb-3">Security analyst focused on detection engineering and the Australian threat landscape.</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="https://ronibiju.com" target="_blank" class="btn btn-sm btn-primary">
+              <i class="bi bi-globe2 me-1"></i>ronibiju.com
+            </a>
+            <a href="https://github.com/ronibiju/e8-detection-lab" target="_blank" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-github me-1"></i>GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Project story -->
+    <div class="e8-card p-4 mb-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-journal-text me-2 text-primary"></i>The Project</h5>
+      <p>
+        Every SOC in Australia works to the <a href="https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight" target="_blank" style="color:#79c0ff;">ASD Essential Eight</a> maturity model, but almost no public detection content is mapped to it.
+        Everyone maps to MITRE ATT&CK — which is great, but generic. This project fills that gap.
+      </p>
+      <p>
+        The goal: for every E8 control, write a Sigma rule that detects the bypass technique that control is designed to prevent,
+        pair it with a safe emulation script you can run in a Windows lab VM, and submit the best rules upstream to
+        <a href="https://github.com/SigmaHQ/sigma" target="_blank" style="color:#79c0ff;">SigmaHQ</a>.
+      </p>
+      <p class="mb-0">
+        When a SOC manager asks <em>"tell me about a detection you wrote"</em> — the answer lives here.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="e8-card p-4 mb-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-bar-chart me-2 text-primary"></i>Current Status — v0.1</h5>
+      <div class="row g-3">
+        <div class="col-6 col-md-3 text-center">
+          <div class="stat-number">12</div>
+          <div class="stat-label">Detection Rules</div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="stat-number">8/8</div>
+          <div class="stat-label">Controls Covered</div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Emulation Scripts</div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="stat-number" style="color:var(--low);">0</div>
+          <div class="stat-label">SigmaHQ PRs Merged</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="e8-card p-4 mb-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-map me-2 text-primary"></i>Roadmap</h5>
+      <ul class="mb-0" style="line-height:2;">
+        <li><span class="badge-ml1 ml-badge me-2">v0.1</span> Baseline rules — 1–2 per control, all 8 controls covered ✓</li>
+        <li><span class="badge-ml2 ml-badge me-2">v0.2</span> 3+ rules per control, emulation scripts for all 8 controls</li>
+        <li><span class="badge-ml3 ml-badge me-2">v0.3</span> First SigmaHQ upstream PR submitted</li>
+        <li class="text-muted">→ ML2/ML3 detection coverage, cloud log sources (Entra ID, M365 Defender)</li>
+        <li class="text-muted">→ Sigma correlation rules for multi-event detections</li>
+      </ul>
+    </div>
+
+    <!-- Stack -->
+    <div class="e8-card p-4">
+      <h5 class="fw-semibold mb-3"><i class="bi bi-tools me-2 text-primary"></i>Stack</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="tag-badge">Sigma</span>
+        <span class="tag-badge">pySigma</span>
+        <span class="tag-badge">Flask</span>
+        <span class="tag-badge">PowerShell</span>
+        <span class="tag-badge">Windows Event Log</span>
+        <span class="tag-badge">Azure AD / Entra ID</span>
+        <span class="tag-badge">MITRE ATT&CK</span>
+        <span class="tag-badge">ASD Essential Eight</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

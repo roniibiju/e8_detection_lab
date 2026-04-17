@@ -1,0 +1,80 @@
+title: LOLBAS Proxy Execution Bypassing Application Control (E8-01)
+id: 3229976e-fb1f-4912-99da-e7a5eef83a0b
+status: experimental
+description: |
+    Detects use of Living-Off-the-Land Binaries (LOLBAS) to proxy execution of
+    arbitrary code, bypassing application control policies. These signed Microsoft
+    binaries are trusted by AppLocker and WDAC but can execute attacker-controlled
+    scripts or payloads. Covers mshta, regsvr32 (Squiblydoo), rundll32, and
+    MSBuild-based bypasses.
+references:
+    - https://lolbas-project.github.io/
+    - https://attack.mitre.org/techniques/T1218/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.01
+    - e8.maturity.ml2
+    - attack.defense_evasion
+    - attack.t1218
+    - attack.t1218.005
+    - attack.t1218.010
+    - attack.t1218.011
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_mshta:
+        Image|endswith: '\mshta.exe'
+        CommandLine|contains:
+            - 'http'
+            - 'vbscript'
+            - 'javascript'
+    selection_regsvr32_base:
+        Image|endswith: '\regsvr32.exe'
+        CommandLine|contains:
+            - '/s'
+            - '/i:'
+            - 'scrobj.dll'
+    selection_regsvr32_remote:
+        CommandLine|contains:
+            - 'http'
+            - '\\'
+    selection_msbuild:
+        Image|endswith: '\MSBuild.exe'
+        CommandLine|contains:
+            - '.csproj'
+            - '.proj'
+        ParentImage|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+    selection_rundll32_base:
+        Image|endswith: '\rundll32.exe'
+        CommandLine|contains:
+            - 'javascript:'
+            - 'shell32.dll,ShellExec_RunDLL'
+    selection_rundll32_network:
+        CommandLine|contains: 'http'
+    condition: >
+        selection_mshta or
+        (selection_regsvr32_base and selection_regsvr32_remote) or
+        selection_msbuild or
+        (selection_rundll32_base and selection_rundll32_network)
+falsepositives:
+    - Legitimate HTA applications in enterprise environments
+    - MSBuild used by developers in non-standard parent contexts
+    - Specific enterprise software using regsvr32 for COM registration
+level: high
+custom:
+    e8_control: E8-01
+    e8_maturity: ML2
+    e8_bypass_technique: LOLBAS proxy execution (mshta/regsvr32/MSBuild/rundll32)
+    false_positive_rate: low
+    tuning_notes: |
+        mshta.exe and regsvr32 with remote URLs should be high-confidence alerts.
+        MSBuild false positives exist in dev environments — suppress on developer
+        workstation groups via asset tags or hostname patterns.

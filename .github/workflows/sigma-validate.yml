@@ -1,0 +1,39 @@
+name: Validate Sigma Rules
+
+on:
+  push:
+    paths:
+      - 'rules/**/*.yml'
+  pull_request:
+    paths:
+      - 'rules/**/*.yml'
+
+jobs:
+  validate:
+    name: Sigma rule validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install sigma-cli
+        run: pip install sigma-cli
+
+      - name: Validate all rules
+        # Skip namespace warnings — e8.control.* and e8.maturity.* are
+        # intentional project-specific tags, removed before SigmaHQ upstream PRs.
+        # InvalidATTACKTagIssue skipped due to pySigma tactic-name version variance.
+        # Exclude namespace_tag and attacktag validators — e8.control.* and
+        # e8.maturity.* are intentional project-specific tags, removed before
+        # SigmaHQ upstream PRs. See CONTRIBUTING.md.
+        run: sigma check --fail-on-error --exclude namespace_tag --exclude attacktag rules/
+
+      - name: Check required E8 metadata
+        run: python tools/check_metadata.py
+
+      - name: List rules (summary)
+        run: python tools/e8query.py --stats

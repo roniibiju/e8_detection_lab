@@ -1,0 +1,176 @@
+# E8 Control → MITRE ATT&CK Technique Mapping
+# Covers the adversary techniques that each E8 control is designed to prevent or detect.
+# Use this for cross-referencing rules, writing blog posts, and PR descriptions for SigmaHQ.
+
+version: "1.0"
+last_updated: "2026-04-17"
+reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight"
+
+controls:
+
+  - id: E8-01
+    name: Application Control
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/application-control"
+    maturity_levels:
+      ML1: "Application control on workstations and internet-facing servers"
+      ML2: "Application control on all servers; logging of allowed/blocked events"
+      ML3: "Application control on all systems; validated against golden image"
+    mitigates:
+      - technique: T1204.002
+        name: Malicious File (User Execution)
+        description: Prevents execution of untrusted binaries dropped via phishing
+      - technique: T1036.005
+        name: Match Legitimate Name or Location
+        description: Controls catch binaries even when renamed to legitimate names
+      - technique: T1218
+        name: System Binary Proxy Execution (LOLBAS)
+        description: ML2+ with script rule enforcement catches LOLBAS bypass
+      - technique: T1055
+        name: Process Injection
+        description: Blocks injection of unsigned code into trusted processes
+    detection_files:
+      - rules/e8-01-application-control/e8_01_execution_from_user_writable_path.yml
+      - rules/e8-01-application-control/e8_01_lolbas_application_control_bypass.yml
+
+  - id: E8-02
+    name: Patch Applications
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/patch-applications"
+    maturity_levels:
+      ML1: "Patches for internet-facing services within 2 weeks; critical within 48h"
+      ML2: "Patches within 2 weeks for all; critical within 48h; removal of unsupported"
+      ML3: "Patches within 1 week; automated scanning; no unsupported software"
+    mitigates:
+      - technique: T1203
+        name: Exploitation for Client Execution
+        description: Patched browsers and office apps cannot be exploited by known CVEs
+      - technique: T1190
+        name: Exploit Public-Facing Application
+        description: Patched internet-facing applications close known attack surface
+      - technique: T1211
+        name: Exploitation for Defense Evasion
+        description: Security product vulnerabilities closed by patching
+    detection_files:
+      - rules/e8-02-patch-applications/e8_02_browser_spawns_shell.yml
+
+  - id: E8-03
+    name: Configure Microsoft Office Macro Settings
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/configure-microsoft-office-macro-settings"
+    maturity_levels:
+      ML1: "Macros disabled for users who don't need them; blocked from internet"
+      ML2: "Macros only from trusted locations; digitally signed"
+      ML3: "Macros disabled or only from trusted publishers with antivirus scan"
+    mitigates:
+      - technique: T1566.001
+        name: Spearphishing Attachment
+        description: Macro-based phishing documents cannot execute without policy bypass
+      - technique: T1059.005
+        name: Visual Basic (VBA)
+        description: Macro execution policy directly controls VBA runtime access
+      - technique: T1105
+        name: Ingress Tool Transfer
+        description: Macros often act as first-stage downloaders
+    detection_files:
+      - rules/e8-03-office-macros/e8_03_office_spawns_shell_process.yml
+      - rules/e8-03-office-macros/e8_03_office_writes_executable_to_disk.yml
+
+  - id: E8-04
+    name: User Application Hardening
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/user-application-hardening"
+    maturity_levels:
+      ML1: "Block ads and Flash; disable Java in browsers"
+      ML2: "Disable PowerShell v2; Enable Script Block Logging; disable WSH"
+      ML3: "PowerShell CLM for non-admins; block all unnecessary scripting"
+    mitigates:
+      - technique: T1059.001
+        name: PowerShell
+        description: CLM + logging degrade PowerShell as an attacker tool
+      - technique: T1059.005
+        name: Visual Basic (WSH)
+        description: Disabling WSH prevents wscript/cscript execution
+      - technique: T1027
+        name: Obfuscated Files or Information
+        description: Script block logging captures decoded/deobfuscated content
+    detection_files:
+      - rules/e8-04-user-app-hardening/e8_04_powershell_encoded_command.yml
+      - rules/e8-04-user-app-hardening/e8_04_wscript_cscript_execution.yml
+
+  - id: E8-05
+    name: Restrict Administrative Privileges
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/restrict-administrative-privileges"
+    maturity_levels:
+      ML1: "Admin accounts only used for admin tasks; no internet from admin accounts"
+      ML2: "Privileged Access Workstations; just-in-time admin; regular review"
+      ML3: "Admin activities logged and audited; breakglass accounts controlled"
+    mitigates:
+      - technique: T1136.001
+        name: Create Local Account
+        description: Admin account creation requires admin rights — limited blast radius
+      - technique: T1550.002
+        name: Pass the Hash
+        description: Credential guard and restricted admin reduce PtH effectiveness
+      - technique: T1484
+        name: Domain Policy Modification
+        description: Restricting admin rights limits policy tampering
+    detection_files:
+      - rules/e8-05-restrict-admin/e8_05_new_local_admin_account.yml
+      - rules/e8-05-restrict-admin/e8_05_pass_the_hash_ntlm_lateral_movement.yml
+
+  - id: E8-06
+    name: Patch Operating Systems
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/patch-operating-systems"
+    maturity_levels:
+      ML1: "Patches within 1 month; critical within 48h for internet-facing"
+      ML2: "Patches within 2 weeks; critical within 48h all systems; no unsupported OS"
+      ML3: "Patches within 1 week; automated; all systems current"
+    mitigates:
+      - technique: T1068
+        name: Exploitation for Privilege Escalation
+        description: Patched OS closes local privilege escalation CVEs
+      - technique: T1134
+        name: Access Token Manipulation
+        description: Many token abuse techniques depend on unpatched kernel features
+      - technique: T1210
+        name: Exploitation of Remote Services
+        description: Network-reachable OS vulnerabilities closed by patching
+    detection_files:
+      - rules/e8-06-patch-os/e8_06_privilege_escalation_token_impersonation.yml
+
+  - id: E8-07
+    name: Multi-Factor Authentication
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/multi-factor-authentication"
+    maturity_levels:
+      ML1: "MFA for remote access and privileged accounts"
+      ML2: "MFA for all internet-facing services and privileged accounts"
+      ML3: "Phishing-resistant MFA (FIDO2/CBA) for all; no SMS"
+    mitigates:
+      - technique: T1621
+        name: Multi-Factor Authentication Request Generation
+        description: MFA fatigue attacks exploit push-based MFA weaknesses
+      - technique: T1539
+        name: Steal Web Session Cookie
+        description: AiTM phishing proxies bypass MFA via token theft
+      - technique: T1078
+        name: Valid Accounts
+        description: Stolen credentials alone cannot authenticate without MFA
+    detection_files:
+      - rules/e8-07-mfa/e8_07_mfa_fatigue_multiple_push_denied.yml
+
+  - id: E8-08
+    name: Regular Backups
+    asd_reference: "https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/regular-backups"
+    maturity_levels:
+      ML1: "Backups performed and stored; restoration tested"
+      ML2: "Backups not accessible from production; tested quarterly"
+      ML3: "Backups offline or immutable; tested every 12 months with incident response"
+    mitigates:
+      - technique: T1490
+        name: Inhibit System Recovery
+        description: Immutable/offline backups survive VSS deletion attempts
+      - technique: T1486
+        name: Data Encrypted for Impact (Ransomware)
+        description: Recent backups enable recovery without paying ransom
+      - technique: T1485
+        name: Data Destruction
+        description: Backups provide recovery path for destructive attacks
+    detection_files:
+      - rules/e8-08-backups/e8_08_shadow_copy_deletion.yml

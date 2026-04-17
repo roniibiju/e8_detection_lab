@@ -1,0 +1,57 @@
+title: Executable Launched from User-Writable Path (E8-01 Application Control Bypass)
+id: 01748e73-752d-40de-a2c7-fe4d825dd034
+status: experimental
+description: |
+    Detects process execution from paths that are typically writable by standard users
+    and not covered by application control policies. Adversaries stage payloads in
+    temp/download directories to bypass AppLocker or WDAC rules that only permit
+    execution from %ProgramFiles% and %SystemRoot%.
+references:
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+    - https://attack.mitre.org/techniques/T1036/005/
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.01
+    - e8.maturity.ml1
+    - attack.defense_evasion
+    - attack.t1036.005
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|contains:
+            - '\AppData\Local\Temp\'
+            - '\AppData\Roaming\'
+            - '\Users\Public\'
+            - '\Downloads\'
+            - '\ProgramData\'
+        Image|endswith:
+            - '.exe'
+            - '.com'
+    filter_known_good:
+        # Installers legitimately run from these paths
+        Image|contains:
+            - '\AppData\Local\Temp\chocolatey'
+            - '\AppData\Local\Temp\7z'
+        ParentImage|endswith:
+            - '\msiexec.exe'
+            - '\setup.exe'
+            - '\install.exe'
+    condition: selection and not filter_known_good
+falsepositives:
+    - Software installers that extract to temp before running
+    - Development tools with self-updating mechanisms
+    - Known software: Zoom, Teams, Slack auto-updaters
+level: medium
+custom:
+    e8_control: E8-01
+    e8_maturity: ML1
+    e8_bypass_technique: Execution from user-writable path outside AppLocker rules
+    false_positive_rate: medium
+    tuning_notes: |
+        Suppress on ParentImage for known update processes. At ML2+, whitelist
+        should be tight enough to reduce FP rate to low.

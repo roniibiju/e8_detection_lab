@@ -1,0 +1,52 @@
+title: Suspicious Token Impersonation or SeDebugPrivilege Abuse (E8-06)
+id: 8df26265-3106-4e08-ac9f-e6612ae7a9c5
+status: experimental
+description: |
+    Detects processes requesting SeDebugPrivilege or SeImpersonatePrivilege which
+    are commonly abused in OS-level privilege escalation exploits. When OS patching
+    lags (E8-06 failure), adversaries use local privilege escalation CVEs that
+    depend on token manipulation to achieve SYSTEM. Audit Policy must log Special
+    Logon events (4672) and Process Creation (4688) with command line.
+references:
+    - https://attack.mitre.org/techniques/T1134/
+    - https://attack.mitre.org/techniques/T1134/001/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.06
+    - e8.maturity.ml2
+    - attack.privilege_escalation
+    - attack.t1134
+    - attack.t1134.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection_special_logon:
+        EventID: 4672    # Special privileges assigned to new logon
+        PrivilegeList|contains:
+            - 'SeDebugPrivilege'
+    filter_expected_accounts:
+        SubjectUserName|endswith: '$'    # Machine accounts
+        SubjectUserName:
+            - 'SYSTEM'
+            - 'LOCAL SERVICE'
+            - 'NETWORK SERVICE'
+    condition: selection_special_logon and not filter_expected_accounts
+falsepositives:
+    - Administrators using debugging tools (WinDbg, Process Monitor, ProcDump)
+    - Endpoint security agents that require SeDebugPrivilege
+    - Some backup agents
+level: medium
+custom:
+    e8_control: E8-06
+    e8_maturity: ML2
+    e8_bypass_technique: Token impersonation / privilege escalation via OS vulnerability
+    false_positive_rate: medium
+    tuning_notes: |
+        Suppress on known admin accounts who routinely use debugging tools.
+        High-fidelity signal when firing for standard user accounts. Correlate
+        with CVE-related process names (e.g., PrintSpoofer, RoguePotato child
+        processes) for confirmed exploitation.

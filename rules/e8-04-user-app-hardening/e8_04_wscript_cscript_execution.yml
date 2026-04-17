@@ -1,0 +1,55 @@
+title: WScript or CScript Executes Remote or Suspicious Script (E8-04)
+id: 9c6441ea-488a-4c3d-be6f-ffb7a54dd1bc
+status: experimental
+description: |
+    Detects wscript.exe or cscript.exe executing scripts from user-writable or
+    network locations. Windows Script Host is a persistent delivery vector for
+    malware distributed via phishing. E8-04 requires disabling or restricting
+    script execution via wscript/cscript for standard users; this rule detects
+    policy violation or bypass.
+references:
+    - https://attack.mitre.org/techniques/T1059/005/
+    - https://attack.mitre.org/techniques/T1059/007/
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.04
+    - e8.maturity.ml1
+    - attack.execution
+    - attack.t1059.005
+    - attack.t1059.007
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_wsh:
+        Image|endswith:
+            - '\wscript.exe'
+            - '\cscript.exe'
+    selection_suspicious_path:
+        CommandLine|contains:
+            - '\AppData\'
+            - '\Temp\'
+            - '\Downloads\'
+            - '\Users\Public\'
+            - 'http'
+            - '\\'         # UNC path — remote script
+    filter_known_admin_scripts:
+        CommandLine|contains:
+            - 'C:\Windows\System32\'
+            - 'C:\Program Files\'
+    condition: selection_wsh and selection_suspicious_path and not filter_known_admin_scripts
+falsepositives:
+    - Legacy enterprise applications using VBScript in %APPDATA%
+    - Group Policy scripts executed from network shares (SYSVOL)
+level: high
+custom:
+    e8_control: E8-04
+    e8_maturity: ML1
+    e8_bypass_technique: Windows Script Host executing malicious VBScript/JScript
+    false_positive_rate: low
+    tuning_notes: |
+        Filter on ParentImage for gpscript.exe to suppress GP-related wscript
+        invocations. At ML2 this should almost never fire legitimately if WSH
+        has been disabled for standard users via Group Policy.

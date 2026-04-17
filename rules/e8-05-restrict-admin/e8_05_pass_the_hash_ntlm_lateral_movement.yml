@@ -1,0 +1,60 @@
+title: Pass-the-Hash NTLM Lateral Movement Indicator (E8-05)
+id: 5031b7bd-0df0-4109-8bc6-6902a65c46b8
+status: experimental
+description: |
+    Detects the Windows Security event pattern associated with pass-the-hash (PtH)
+    attacks: a network logon using NTLM authentication from a source that has no
+    corresponding interactive session. PtH abuses stolen NTLM hashes to authenticate
+    without knowing the cleartext password — a direct consequence of admin credentials
+    not being restricted per E8-05.
+
+    Key indicator: EventID 4624 (Logon Type 3, NTLM) where the source workstation
+    differs from the account's normal logon pattern, combined with no prior Type 2
+    interactive logon from that machine.
+references:
+    - https://attack.mitre.org/techniques/T1550/002/
+    - https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model
+author: Roni Biju
+date: 2026-04-17
+modified: 2026-04-17
+tags:
+    - e8.control.05
+    - e8.maturity.ml2
+    - attack.lateral_movement
+    - attack.t1550.002
+    - attack.credential_access
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4624
+        LogonType: 3
+        AuthenticationPackageName: NTLM
+    filter_machine_accounts:
+        TargetUserName|endswith: '$'
+    filter_anonymous:
+        TargetUserName: 'ANONYMOUS LOGON'
+    filter_local_system:
+        SubjectUserName: 'SYSTEM'
+    filter_domain_controllers:
+        # On DCs, NTLM type-3 logons are expected during Kerberos fallback
+        # Tune this to your DC hostnames or OU
+        WorkstationName|endswith: '-DC'
+    condition: selection and not filter_machine_accounts and not filter_anonymous and not filter_local_system and not filter_domain_controllers
+falsepositives:
+    - Legacy applications that cannot use Kerberos and fall back to NTLM
+    - File shares accessed from non-domain-joined devices
+    - Environments with mixed domain trust configurations
+level: medium
+custom:
+    e8_control: E8-05
+    e8_maturity: ML2
+    e8_bypass_technique: Pass-the-Hash using stolen NTLM credential hash
+    false_positive_rate: medium
+    tuning_notes: |
+        High FP environment without tuning. Effective strategy: alert only when
+        TargetUserName is a member of privileged groups (Domain Admins, local Admins).
+        Layer with 4625 (failed logon) volume spike from same source for higher fidelity.
+        At ML3, Protected Users group and NTLM restrictions make this near-obsolete
+        but still worth monitoring for regression.

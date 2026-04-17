@@ -1,0 +1,382 @@
+:root {
+  --bg-primary: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1c2128;
+  --border-color: #30363d;
+  --text-muted: #8b949e;
+  --accent: #388bfd;
+
+  --critical: #f85149;
+  --high: #d29922;
+  --medium: #388bfd;
+  --low: #3fb950;
+
+  --ml1: #e3b341;
+  --ml2: #d29922;
+  --ml3: #3fb950;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Nav */
+#main-nav {
+  background-color: #010409;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+.brand-text {
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.navbar-nav .nav-link {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  color: #e6edf3;
+  background: #1c2128;
+}
+
+/* Cards */
+.e8-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.e8-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+/* Control cards on dashboard */
+.control-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  padding: 1.25rem;
+  transition: border-color 0.2s, background 0.15s;
+}
+
+.control-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+  color: inherit;
+}
+
+.control-card .ctrl-icon {
+  font-size: 1.8rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.control-card .ctrl-id {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.control-card .ctrl-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+  line-height: 1.3;
+}
+
+.control-card .ctrl-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-top: 0.75rem;
+}
+
+.control-card .ctrl-count-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Severity badges */
+.badge-critical { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid rgba(248,81,73,0.3); }
+.badge-high     { background: rgba(210,153,34,0.15); color: var(--high);     border: 1px solid rgba(210,153,34,0.3); }
+.badge-medium   { background: rgba(56,139,253,0.15); color: var(--medium);   border: 1px solid rgba(56,139,253,0.3); }
+.badge-low      { background: rgba(63,185,80,0.15);  color: var(--low);      border: 1px solid rgba(63,185,80,0.3); }
+.badge-unknown  { background: rgba(139,148,158,0.15); color: var(--text-muted); border: 1px solid rgba(139,148,158,0.3); }
+
+.badge-ml1 { background: rgba(227,179,65,0.15);  color: var(--ml1); border: 1px solid rgba(227,179,65,0.3); }
+.badge-ml2 { background: rgba(210,153,34,0.15);  color: var(--ml2); border: 1px solid rgba(210,153,34,0.3); }
+.badge-ml3 { background: rgba(63,185,80,0.15);   color: var(--ml3); border: 1px solid rgba(63,185,80,0.3); }
+
+.level-badge, .ml-badge, .tag-badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag-badge {
+  background: rgba(56,139,253,0.1);
+  color: #79c0ff;
+  border: 1px solid rgba(56,139,253,0.25);
+  font-family: monospace;
+  font-size: 0.72rem;
+}
+
+.ctrl-badge {
+  display: inline-block;
+  padding: 0.2em 0.55em;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(56,139,253,0.12);
+  color: #79c0ff;
+  border: 1px solid rgba(56,139,253,0.2);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Rules table */
+.rules-table {
+  font-size: 0.88rem;
+}
+
+.rules-table thead th {
+  background: #0d1117;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rules-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.rules-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+
+.rules-table tbody td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.rule-title-cell {
+  max-width: 400px;
+}
+
+.rule-title-link {
+  color: #e6edf3;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.rule-title-link:hover {
+  color: var(--accent);
+}
+
+/* Filter bar */
+.filter-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.filter-bar .form-select,
+.filter-bar .form-control {
+  background: #0d1117;
+  border-color: var(--border-color);
+  color: #e6edf3;
+  font-size: 0.88rem;
+}
+
+.filter-bar .form-select:focus,
+.filter-bar .form-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(56,139,253,0.15);
+  background: #0d1117;
+  color: #e6edf3;
+}
+
+/* Rule detail */
+.detail-meta-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.detail-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.description-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.yaml-block {
+  background: #161b22;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.yaml-block pre {
+  margin: 0;
+  padding: 1.25rem;
+  font-size: 0.82rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.tuning-block {
+  background: rgba(227,179,65,0.07);
+  border: 1px solid rgba(227,179,65,0.25);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Mapping page */
+.mapping-control-header {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mapping-control-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.technique-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.technique-id {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #79c0ff;
+  font-weight: 600;
+}
+
+/* Page header */
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.page-header .text-muted {
+  font-size: 0.9rem;
+}
+
+/* Stat number */
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Emulation script path */
+.emulation-path {
+  font-family: monospace;
+  font-size: 0.82rem;
+  background: #0d1117;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #3fb950;
+}
+
+/* FP rate indicator */
+.fp-low    { color: var(--low); }
+.fp-medium { color: var(--high); }
+.fp-high   { color: var(--critical); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+/* Search highlight */
+mark {
+  background: rgba(227,179,65,0.3);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 2px;
+}

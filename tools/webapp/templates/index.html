@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — E8 Detection Lab{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <div>
+    <h1 class="d-flex align-items-center gap-2">
+      <i class="bi bi-speedometer2 text-primary"></i>Dashboard
+      <span class="tag-badge" style="font-size:0.7rem; vertical-align:middle;">v0.1</span>
+    </h1>
+    <p class="text-muted mb-0">ASD Essential Eight — Detection Coverage Overview</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="https://github.com/ronibiju/e8-detection-lab" target="_blank" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-github me-1"></i>GitHub
+    </a>
+    <a href="/rules/" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-list-ul me-1"></i>Browse all rules
+    </a>
+  </div>
+</div>
+
+<div class="alert mb-4" style="background:rgba(56,139,253,0.07); border:1px solid rgba(56,139,253,0.2); border-radius:10px; font-size:0.88rem;">
+  <i class="bi bi-info-circle me-2" style="color:var(--accent);"></i>
+  <strong>v0.1 — baseline coverage.</strong>
+  All 8 controls have at least one rule. Controls with 1 rule are marked for expansion in v0.2.
+  <a href="/about/" class="ms-2" style="color:#79c0ff;">See roadmap →</a>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card p-3 h-100">
+      <div class="stat-number">{{ total_rules }}</div>
+      <div class="stat-label">Detection Rules</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card p-3 h-100">
+      <div class="stat-number">{{ controls_covered }}</div>
+      <div class="stat-label">E8 Controls Covered</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card p-3 h-100">
+      <div class="stat-number" style="color: var(--high);">{{ high_critical_count }}</div>
+      <div class="stat-label">High / Critical Rules</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card p-3 h-100">
+      <div class="stat-number" style="color: var(--low);">{{ controls_covered }}/8</div>
+      <div class="stat-label">Coverage</div>
+    </div>
+  </div>
+</div>
+
+<!-- E8 Control grid -->
+<h5 class="mb-3 text-muted fw-semibold" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">
+  <i class="bi bi-grid me-1"></i>Coverage by Control
+</h5>
+<div class="row g-3 mb-5">
+  {% for ctrl_id, stat in control_stats.items() %}
+  <div class="col-6 col-md-4 col-lg-3">
+    <a class="control-card h-100" href="/rules?control={{ ctrl_id }}">
+      <div class="ctrl-icon"><i class="bi bi-{{ stat.icon }}"></i></div>
+      <div class="ctrl-id">{{ ctrl_id.upper() }}</div>
+      <div class="ctrl-name">{{ stat.name }}</div>
+      <div class="d-flex align-items-end justify-content-between mt-3">
+        <div>
+          <div class="ctrl-count">{{ stat.count }}</div>
+          <div class="ctrl-count-label">rule{{ 's' if stat.count != 1 }}</div>
+        </div>
+        <div class="d-flex flex-column align-items-end gap-1">
+          {% if stat.count == 0 %}
+            <span class="tag-badge" style="color:var(--text-muted); border-color:var(--border-color);">no rules yet</span>
+          {% else %}
+            {% for ml in stat.maturities %}
+              <span class="ml-badge badge-{{ ml.lower() }}">{{ ml }}</span>
+            {% endfor %}
+            <span class="level-badge badge-{{ stat.top_level }}">{{ stat.top_level }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Recent rules -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h5 class="mb-0 text-muted fw-semibold" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">
+    <i class="bi bi-clock-history me-1"></i>Rules
+  </h5>
+  <a href="/rules" class="small text-muted">View all →</a>
+</div>
+
+<div class="e8-card overflow-hidden">
+  <table class="table rules-table mb-0">
+    <thead>
+      <tr>
+        <th>Control</th>
+        <th>ML</th>
+        <th>Level</th>
+        <th>Title</th>
+        <th class="d-none d-md-table-cell">Log Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rule in recent_rules %}
+      <tr onclick="location.href='/rules/{{ rule._id }}'">
+        <td><span class="ctrl-badge">{{ rule._control.upper() }}</span></td>
+        <td><span class="ml-badge badge-{{ rule._maturity.lower() }}">{{ rule._maturity }}</span></td>
+        <td><span class="level-badge badge-{{ rule._level }}">{{ rule._level }}</span></td>
+        <td class="rule-title-cell">
+          <a class="rule-title-link" href="/rules/{{ rule._id }}">{{ rule.title }}</a>
+        </td>
+        <td class="d-none d-md-table-cell text-muted small">{{ rule._logsource }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
